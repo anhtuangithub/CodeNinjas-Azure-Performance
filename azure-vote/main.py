@@ -22,21 +22,21 @@ from opencensus.trace import config_integration
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 
+# For Metrics
+stats = stats_module.stats
+view_manager = stats.view_manager
+config_integration.trace_integrations(['logging'])
+config_integration.trace_integrations(['requests'])
+
 # Logging
 logger = logging.getLogger(__name__)
 handler = AzureLogHandler(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f')
-handler.setFormatter(logging.Formatter('%(message)s'))
+handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 # Set logging event
 logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f'))
 # Set logging level
 logger.setLevel(logging.INFO)
-
-# For metrics
-stats = stats_module.stats
-view_manager = stats.view_manager
-config_integration.trace_integrations(["logging"])
-config_integration.trace_integrations(["requests"])
 
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(enable_standard_metrics=True, connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f')
@@ -45,16 +45,13 @@ view_manager.register_exporter(exporter)
 # Tracing
 tracer = Tracer(exporter=AzureExporter(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f'),sampler=ProbabilitySampler(1.0),)
 
-
 app = Flask(__name__)
 
 # Requests
 middleware = FlaskMiddleware(
     app,
-    exporter=AzureExporter(
-        connection_string="InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f"
-    ),
-    sampler=ProbabilitySampler(rate=1.0),
+    exporter=AzureExporter(connection_string="InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f"),
+    sampler=ProbabilitySampler(rate=1.0)
 )
 
 # Load configurations from environment or config file
@@ -93,13 +90,14 @@ def index():
 
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
-        # TODO: use tracer object to trace cat vote
+        # Use tracer object to trace cat vote
         with tracer.span(name="Cats Vote") as span:
             print("Cats Vote")
         vote2 = r.get(button2).decode('utf-8')
-        # TODO: use tracer object to trace dog vote
+        # Use tracer object to trace dog vote
         with tracer.span(name="Dogs Vote") as span:
             print("Dogs Vote")
+
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -107,19 +105,17 @@ def index():
     elif request.method == 'POST':
 
         if request.form['vote'] == 'reset':
-
             # Empty table and return results
             r.set(button1,0)
             r.set(button2,0)
             vote1 = r.get(button1).decode('utf-8')
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
-            # TODO: use logger object to log cat vote
-            logger.info("Cats Vote", extra=properties)
-
+            # Use logger object to log cat vote
+            logger.info('Cats Vote', extra=properties)
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
-            # TODO: use logger object to log dog vote
-            logger.info("Dogs Vote", extra=properties)
+            # Use logger object to log dog vote
+            logger.info('Dogs Vote', extra=properties)
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
@@ -139,10 +135,10 @@ def index():
             logger.info('Dogs Vote', extra=properties)
 
             # Return results
-            return render_template("index.htmlb3fd25336e1b", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
+            return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
 if __name__ == "__main__":
-    # TODO: Use the statement below when running locally
+    # Use the statement below when running locally
     app.run() 
     # TODO: Use the statement below before deployment to VMSS
     # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
