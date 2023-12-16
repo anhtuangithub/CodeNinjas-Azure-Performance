@@ -25,7 +25,7 @@ from opencensus.trace.tracer import Tracer
 # Logging
 logger = logging.getLogger(__name__)
 handler = AzureLogHandler(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f')
-handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
+handler.setFormatter(logging.Formatter('%(message)s'))
 logger.addHandler(handler)
 # Set logging event
 logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f'))
