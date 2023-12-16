@@ -39,19 +39,12 @@ config_integration.trace_integrations(["logging"])
 config_integration.trace_integrations(["requests"])
 
 # Metrics
-exporter = metrics_exporter.new_metrics_exporter(
-    enable_standard_metrics=True,
-    connection_string="InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f",
-)
+exporter = metrics_exporter.new_metrics_exporter(enable_standard_metrics=True, connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f')
 view_manager.register_exporter(exporter)
 
 # Tracing
-tracer = Tracer(
-    exporter=AzureExporter(
-        connection_string="InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f"
-    ),
-    sampler=ProbabilitySampler(1.0),
-)
+tracer = Tracer(exporter=AzureExporter(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f'),sampler=ProbabilitySampler(1.0),)
+
 
 app = Flask(__name__)
 
