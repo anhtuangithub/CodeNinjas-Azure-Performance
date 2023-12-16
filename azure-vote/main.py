@@ -8,11 +8,11 @@ import logging
 from datetime import datetime
 
 # App Insights
-# TODO: Import required libraries for App Insights
-from opencensus.ext.azure import metrics_exporter
-from opencensus.ext.azure.log_exporter import AzureEventHandler, AzureLogHandler
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+from opencensus.ext.azure.log_exporter import AzureEventHandler
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+from opencensus.ext.azure import metrics_exporter
 from opencensus.stats import aggregation as aggregation_module
 from opencensus.stats import measure as measure_module
 from opencensus.stats import stats as stats_module
@@ -24,18 +24,12 @@ from opencensus.trace.tracer import Tracer
 
 # Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(
-    connection_string="InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f"
-)
-handler.setFormatter(logging.Formatter("%(traceId)s %(spanId)s %(message)s"))
+handler = AzureLogHandler(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f')
+handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
-# Logging custom Events
-logger.addHandler(
-    AzureEventHandler(
-        connection_string="InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f"
-    )
-)
-# Set the logging level
+# Set logging event
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=61324e47-54c0-4cb3-95b2-e7ad2275550f'))
+# Set logging level
 logger.setLevel(logging.INFO)
 
 # For metrics
